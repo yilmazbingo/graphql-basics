@@ -1,0 +1,109 @@
+type Query {
+    # (query:String) is called operational arguments
+    # we pass operational args in graphql:{data:name:"",email:""}
+        users(query: String): [User!]!
+        posts(query: String): [Post!]!
+        comments: [Comment!]!
+        me: User!
+        post: Post!
+    }
+    #***************************       MUTATION           ******************
+    type Mutation {
+        createUser(data:CreateUserInput!):User!,
+        deleteUser(id:ID!):User!,
+        updateUser(id:ID!,data:UpdateUserInput!):User!,
+        createPost(data:CreatePostInput!):Post!,
+        deletePost(id:ID!):Post!,
+        updatePost(id:ID!,data:UpdatePostInput!):Post!
+        createComment(data:CreateCommentInput!):Comment!,
+        deleteComment(id:ID!):Comment!
+        updateComment(id: ID!, data: UpdateCommentInput): Comment!
+    }
+
+    #**************************       SUBSCRIPTION          *******************
+    type Subscription {
+        comment(postId:ID!):CommentSubscriptionPayload!
+        post:PostSubscriptionPayload!
+    }
+    #*********************            INPUT TYPES          **********************
+
+    #--------MUTATION INPUT TYPES----------------
+    # "input" is input type. we pass obj instead passing more than 1 arg
+    # everything inside input type has to be scalar type
+    input CreateUserInput{
+        name:String!,
+        email:String!,
+        age:Int
+    }
+    # args in update are all optional. thats why we are creating a new input type
+    input UpdateUserInput{
+        name:String,
+        email:String,
+        age:Int
+    }
+
+    input CreatePostInput{
+        title:String!,
+        body:String!,
+        published:Boolean!,
+        author:ID!
+    }
+
+    input UpdatePostInput{
+        title:String,
+        body:String,
+        published:Boolean,
+
+    }
+
+    input CreateCommentInput{
+        text:String!,
+        author:ID!,
+        post:ID!
+    }
+    input UpdateCommentInput {
+        text: String
+    }
+    type User {
+        id: ID!
+        name: String!
+        email: String!
+        age: Int
+        posts: [Post!]!
+        comments: [Comment!]!
+    }
+
+    type Post {
+        id: ID!
+        title: String!
+        body: String!
+        published: Boolean!
+        author: User!
+        comments: [Comment!]!
+    }
+
+    type Comment {
+        id: ID!
+        text: String!
+        author: User!
+        post: Post!
+    }
+    #-------------SUBSCRIPTION INPUT TYPES---------
+    type PostSubscriptionPayload {
+        mutation:MutationType!
+        data:Post!
+    }
+    type CommentSubscriptionPayload{
+        mutation:MutationType!
+        data:Comment!
+    }
+
+    #---------ENUM--------
+    #enum is not javascript type, it is graphql-yoga type
+    # in javascript we use switch/case 
+    enum MutationType{
+    CREATED
+    UPDATED
+    DELETED
+    }
+    
